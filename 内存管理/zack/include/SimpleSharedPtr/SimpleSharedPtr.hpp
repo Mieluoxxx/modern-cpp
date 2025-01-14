@@ -1,76 +1,129 @@
-/***
- * @Author: error: error: git config user.name & please set dead value or
- * install git && error: git config user.email & please set dead value or
- * install git & please set dead value or install git
- * @Date: 2025-01-08 21:13:44
- * @LastEditors: error: error: git config user.name & please set dead value or
- * install git && error: git config user.email & please set dead value or
- * install git & please set dead value or install git
- * @LastEditTime: 2025-01-08 21:16:00
- * @FilePath: /zack/include/SimpleSharedPtr/SimpleSharedPtr.hpp
- * @Description:
- */
-#ifndef SIMPLESHARED_PTR_HPP
-#define SIMPLESHARED_PTR_HPP
+#ifndef SIMPLE_SHARED_PTR_HPP
+#define SIMPLE_SHARED_PTR_HPP
 
+#include <iostream>
+
+// 控制块结构
 struct ControlBlock {
     int ref_count;
+
     ControlBlock() : ref_count(1) {}
 };
 
+// 简化版的 shared_ptr 实现
 template <typename T>
 class SimpleSharedPtr {
    private:
-    T *ptr;
-    ControlBlock *control;
+    T* ptr;                 // 指向管理的对象
+    ControlBlock* control;  // 指向控制块
+
+    // 释放当前资源
     void release() {
         if (control) {
-            --control->ref_count;
-            if (count->ref_count == 0) {
+            control->ref_count--;
+            std::cout << "Decremented ref_count to " << control->ref_count
+                      << std::endl;
+            if (control->ref_count == 0) {
                 delete ptr;
-                ptr = nullptr;
                 delete control;
-                control = nullptr;
+                std::cout << "Resource and ControlBlock destroyed."
+                          << std::endl;
             }
         }
+        ptr = nullptr;
+        control = nullptr;
     }
 
    public:
-    // 隐式转换: SimpleSharedPtr p = new Student();
-    // 显示构造: SimpleSharedPtr p(new Student());
-    explicit SimpleSharedPtr(T *p) : ptr(p) {
-        if (p)
+    // 默认构造函数
+    SimpleSharedPtr() : ptr(nullptr), control(nullptr) {
+        std::cout << "Default constructed SimpleSharedPtr (nullptr)."
+                  << std::endl;
+    }
+
+    // 参数化构造函数
+    explicit SimpleSharedPtr(T* p) : ptr(p) {
+        if (p) {
             control = new ControlBlock();
-        else
+            std::cout << "Constructed SimpleSharedPtr, ref_count = "
+                      << control->ref_count << std::endl;
+        } else {
             control = nullptr;
-    }
-
-    ~SimpleSharedPtr() {
-        if (ptr) {
-            release();
         }
     }
 
-    // 拷贝构造 SimpleSharedPtr s1(s2);
-    SimpleSharedPtr(const SimpleSharedPtr<T> &s)
-        : ptr(s.ptr), control(s.control) {
+    // 拷贝构造函数
+    SimpleSharedPtr(const SimpleSharedPtr& other)
+        : ptr(other.ptr), control(other.control) {
         if (control) {
-            ++control->ref_count;
+            control->ref_count++;
+            std::cout << "Copied SimpleSharedPtr, ref_count = "
+                      << control->ref_count << std::endl;
         }
     }
 
-    // 赋值操作 SimpleSharedPtr s1 = s2;
-    SimpleSharedPtr<T> &operator=(const SimpleSharedPtr<T> &s) {
-        if (this != &s) {   // 防止自赋值
-            realase();
-            ptr = s.ptr;
-            control = s.control;
+    // 拷贝赋值操作符
+    SimpleSharedPtr& operator=(const SimpleSharedPtr& other) {
+        if (this != &other) {
+            release();
+            ptr = other.ptr;
+            control = other.control;
             if (control) {
-                ++control->ref_count;
+                control->ref_count++;
+                std::cout << "Assigned SimpleSharedPtr, ref_count = "
+                          << control->ref_count << std::endl;
             }
         }
-        return *this; // 返回引用
+        return *this;
+    }
+
+    // 移动构造函数
+    SimpleSharedPtr(SimpleSharedPtr&& other) noexcept
+        : ptr(other.ptr), control(other.control) {
+        other.ptr = nullptr;
+        other.control = nullptr;
+        std::cout << "Moved SimpleSharedPtr." << std::endl;
+    }
+
+    // 移动赋值操作符
+    SimpleSharedPtr& operator=(SimpleSharedPtr&& other) noexcept {
+        if (this != &other) {
+            release();
+            ptr = other.ptr;
+            control = other.control;
+            other.ptr = nullptr;
+            other.control = nullptr;
+            std::cout << "Move-assigned SimpleSharedPtr." << std::endl;
+        }
+        return *this;
+    }
+
+    // 析构函数
+    ~SimpleSharedPtr() { release(); }
+
+    // 解引用操作符
+    T& operator*() const { return *ptr; }
+
+    // 箭头操作符
+    T* operator->() const { return ptr; }
+
+    // 获取引用计数
+    int use_count() const { return control ? control->ref_count : 0; }
+
+    // 获取裸指针
+    T* get() const { return ptr; }
+
+    // 重置指针
+    void reset(T* p = nullptr) {
+        release();
+        ptr = p;
+        if (p) {
+            control = new ControlBlock();
+            std::cout << "Reset SimpleSharedPtr, ref_count = "
+                      << control->ref_count << std::endl;
+        } else {
+            control = nullptr;
+        }
     }
 };
-
-#endif  // SIMPLESHARED_PTR_HPP
+#endif  // SIMPLE_SHARED_PTR_HPP

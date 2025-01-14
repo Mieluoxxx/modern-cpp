@@ -1,30 +1,16 @@
 /***
  * @Author: Morgan Woods weiyiding0@gmail.com
- * @Date: 2025-01-08 19:23:42
+ * @Date: 2025-01-13 20:03:30
  * @LastEditors: Morgan Woods weiyiding0@gmail.com
- * @LastEditTime: 2025-01-08 19:27:00
- * @FilePath: /zack/main.cpp
- * @Description: 内存池的应用
+ * @LastEditTime: 2025-01-14 18:09:36
+ * @FilePath: /zack/src/MemoryPool/main.cpp
+ * @Description:
  */
 
 #include <iostream>
-#include <string>
 
 #include "MemoryPool/MemoryPool.hpp"
-
-class Student {
-   public:
-    Student() : name("Jerry"), age(10) {};
-    Student(std::string name, int age) : name(name), age(age) {};
-    ~Student() = default;
-
-    std::string get_name() const { return name; }
-    int get_age() const { return age; }
-
-   private:
-    std::string name;
-    int age;
-};
+#include "MemoryPool/Student.hpp"
 
 int main() {
     try {
@@ -46,7 +32,7 @@ int main() {
         std::cout << obj3->get_name() << std::endl;
 
         void* mem4 = pool.allocate();
-        auto obj4 = new (mem4) Student(); // 这里会抛出异常，因为内存池已满
+        auto obj4 = new (mem4) Student();  // 这里会抛出异常，因为内存池已满
 
         obj1->~Student();
         obj2->~Student();

@@ -2,14 +2,13 @@
  * @Author: Morgan Woods weiyiding0@gmail.com
  * @Date: 2025-01-08 18:09:18
  * @LastEditors: Morgan Woods weiyiding0@gmail.com
- * @LastEditTime: 2025-01-08 19:53:11
+ * @LastEditTime: 2025-01-14 18:09:21
  * @FilePath: /zack/include/MemoryPool/MemoryPool.hpp
  * @Description: 符合RAII原则的内存池
  */
-#ifndef MEMORYPOOL_H
-#define MEMORYPOOL_H
+#ifndef MEMORYPOOL_HPP
+#define MEMORYPOOL_HPP
 
-#include <iostream>
 #include <stack>
 
 // 线程安全（加锁）问题
@@ -31,4 +30,4 @@ class MemoryPool {
     std::stack<void*> freeList;
 };
 
-#endif  // MEMORYPOOL_H
+#endif  // MEMORYPOOL_HPP
